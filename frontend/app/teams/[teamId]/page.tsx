@@ -8,6 +8,7 @@ import { TeamPageSkeleton } from "@/components/skeletons/team-page-skeleton";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeam } from "@/hooks/useTeam";
 import { useParams } from "next/navigation";
+import useProfileStore from "@/zustand/useProfileStore";
 
 function TeamPage() {
   const params = useParams();
@@ -15,6 +16,7 @@ function TeamPage() {
 
   const { team, isLoading: isLoadingTeam } = useTeam(teamId);
   const { teamMembers, isLoading: isLoadingTeamMembers } = useTeamMembers();
+  const { profile } = useProfileStore();
 
   if (isLoadingTeam || isLoadingTeamMembers) {
     return <TeamPageSkeleton />;
@@ -119,11 +121,12 @@ function TeamPage() {
                 </Avatar>
                 <div className="flex-1">
                   <p className="font-medium">{teamMember.name}</p>
-                  <p className="text-sm text-muted-foreground">You</p>
+                  {profile && teamMember.id === profile.id && (
+                    <p className="text-sm text-muted-foreground">You</p>
+                  )}
                 </div>
               </div>
             ))}
-            {/* TODO: Fetch and display other team members */}
           </div>
         </CardContent>
       </Card>
