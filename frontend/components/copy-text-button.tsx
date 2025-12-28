@@ -4,6 +4,7 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { toast } from "react-toastify";
 
 interface CopyTextButtonProps {
   text: string;
@@ -15,6 +16,10 @@ function CopyTextButton({ text, className }: CopyTextButtonProps) {
 
   React.useEffect(() => {
     if (isCopied) {
+      if (window.innerWidth < 768) {
+        toast.info("Coppied to clipboard");
+      }
+
       setTimeout(() => {
         setIsCopied(false);
       }, 1000);
