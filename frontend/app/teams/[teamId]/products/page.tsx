@@ -84,11 +84,6 @@ export default function ProductsPage() {
     setEditingProduct(product);
   };
 
-  const teamMembersOptions = teamMembers.map((member) => ({
-    id: member.id,
-    name: member.name || "Unknown",
-  }));
-
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Header */}
@@ -129,7 +124,7 @@ export default function ProductsPage() {
         <ProductFilters
           filters={filters}
           onFiltersChange={changeFilters}
-          teamMembers={teamMembersOptions}
+          teamMembers={teamMembers}
         />
       </div>
 

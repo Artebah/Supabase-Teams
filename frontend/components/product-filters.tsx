@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Search, Filter, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ProductsQueryParams } from "@/types/products.api";
+import { Profile } from "@/types/profiles.api";
 
 interface ProductFiltersProps {
   filters: ProductsQueryParams;
   onFiltersChange: (filters: Partial<ProductsQueryParams>) => void;
-  teamMembers?: Array<{ id: string; name: string }>;
+  teamMembers?: Profile[];
 }
 
 export function ProductFilters({
@@ -17,18 +18,18 @@ export function ProductFilters({
   onFiltersChange,
   teamMembers = [],
 }: ProductFiltersProps) {
-  const [searchInput, setSearchInput] = useState(filters.search || "");
+  const [searchInput, setSearchInput] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (searchInput !== filters.search) {
-        onFiltersChange({ search: searchInput || undefined });
+        onFiltersChange({ search: searchInput });
       }
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchInput, filters.search, onFiltersChange]);
+  }, [searchInput, onFiltersChange, filters.search]);
 
   const handleClearFilters = () => {
     setSearchInput("");

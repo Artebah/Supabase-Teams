@@ -38,7 +38,6 @@ export interface ProductsQueryParams {
   search?: string;
   sort_by?: "created_at" | "updated_at";
   sort_order?: "asc" | "desc";
-  team_id?: string;
 }
 
 export interface ProductsListResponse {

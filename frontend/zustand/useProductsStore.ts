@@ -39,6 +39,7 @@ const initialFilters: ProductsQueryParams = {
   limit: 10,
   sort_by: "created_at",
   sort_order: "desc",
+  search: "",
 };
 
 export const useProductsStore = create<ProductsState>((set) => ({

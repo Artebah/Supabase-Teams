@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProductsStore } from "@/zustand/useProductsStore";
 import {
@@ -9,10 +9,8 @@ import {
 import { toast } from "react-toastify";
 import { toastSupabaseError } from "@/utils/toastSupabaseError";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
 export function useProducts(teamId?: string) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const {
     products,
     pagination,
@@ -25,146 +23,73 @@ export function useProducts(teamId?: string) {
     setFilters,
   } = useProductsStore();
 
-  const fetchProducts = useCallback(
-    async (customFilters?: Partial<ProductsQueryParams>) => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-        const queryParams = { ...filters, ...customFilters };
-        if (teamId) {
-          queryParams.team_id = teamId;
-        }
-
-        const searchParams = new URLSearchParams();
-        Object.entries(queryParams).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
-            searchParams.append(key, String(value));
-          }
-        });
-
-        const { data, error } = await supabase.functions.invoke(
-          `products?${searchParams.toString()}`,
-          { method: "GET" }
-        );
-
-        if (error) {
-          toastSupabaseError(error);
-          return;
-        }
-
-        setProducts(data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        setError(err instanceof Error ? err.message : "Unknown error");
-        toast.error("Failed to load products");
+    const searchParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        searchParams.append(key, String(value));
       }
-    },
-    []
-  );
+    });
+
+    const { data, error } = await supabase.functions.invoke(
+      `products?${searchParams.toString()}`,
+      { method: "GET" }
+    );
+
+    if (error) {
+      toastSupabaseError(error);
+      return;
+    }
+
+    setProducts(data);
+  }, [setError, setLoading, setProducts, supabase, filters]);
 
   const createProduct = async (dto: CreateProductDto) => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const { error } = await supabase.functions.invoke(`products`, {
+      method: "POST",
+      body: JSON.stringify(dto),
+    });
 
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/products`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dto),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create product");
-      }
-
-      const product = await response.json();
-      toast.success("Product created successfully");
-      await fetchProducts();
-      return product;
-    } catch (err) {
-      console.error("Error creating product:", err);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to create product"
-      );
-      throw err;
+    if (error) {
+      toastSupabaseError(error);
     }
+
+    toast.success("Product created successfully");
+    await fetchProducts();
   };
 
   const updateProduct = async (productId: string, dto: UpdateProductDto) => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const { error } = await supabase.functions.invoke(`products/${productId}`, {
+      method: "PATCH",
 
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/products/${productId}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${session?.access_token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dto),
-        }
-      );
+      body: JSON.stringify(dto),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update product");
-      }
-
-      const product = await response.json();
-      toast.success("Product updated successfully");
-      await fetchProducts();
-      return product;
-    } catch (err) {
-      console.error("Error updating product:", err);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to update product"
-      );
-      throw err;
+    if (error) {
+      toastSupabaseError(error);
     }
+
+    toast.success("Product updated successfully");
+    await fetchProducts();
   };
 
   const deleteProduct = async (productId: string) => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const { error } = await supabase.functions.invoke(`products/${productId}`, {
+      method: "DELETE",
+    });
 
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/products/${productId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${session?.access_token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete product");
-      }
-
-      toast.success("Product deleted successfully");
-      await fetchProducts();
-    } catch (err) {
-      console.error("Error deleting product:", err);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to delete product"
-      );
-      throw err;
+    if (error) {
+      toastSupabaseError(error);
     }
+
+    toast.success("Product deleted successfully");
+    await fetchProducts();
   };
 
+  //! Move to backend
   const uploadImage = async (file: File): Promise<string> => {
     try {
       const fileExt = file.name.split(".").pop();
@@ -195,6 +120,7 @@ export function useProducts(teamId?: string) {
       throw err;
     }
   };
+  //!
 
   const changePage = (page: number) => {
     setFilters({ page });
@@ -208,16 +134,7 @@ export function useProducts(teamId?: string) {
     if (teamId) {
       fetchProducts();
     }
-  }, [
-    fetchProducts,
-    teamId,
-    filters.page,
-    filters.status,
-    filters.created_by,
-    filters.search,
-    filters.sort_by,
-    filters.sort_order,
-  ]);
+  }, [fetchProducts, teamId]);
 
   return {
     products,

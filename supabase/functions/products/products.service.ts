@@ -99,21 +99,11 @@ export class ProductsService {
       query = query.eq("created_by", created_by);
     }
 
-    // Full-text search
-    if (search && search.trim()) {
-      const searchTerms = search
-        .trim()
-        .split(/\s+/)
-        .map((term) => term.replace(/[^a-zA-Z0-9]/g, ""))
-        .filter((term) => term.length > 0)
-        .join(" & ");
-
-      if (searchTerms) {
-        query = query.textSearch("title,description", searchTerms, {
-          type: "websearch",
-          config: "english",
-        });
-      }
+    if (search?.trim()) {
+      const searchTerm = `%${search.trim()}%`;
+      query = query.or(
+        `title.ilike.${searchTerm},description.ilike.${searchTerm}`
+      );
     }
 
     // Sorting
