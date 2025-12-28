@@ -7,12 +7,16 @@ import { Card } from "@/components/ui/card";
 import { Edit, Trash2, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
+import {
+  ActivateProductModalData,
+  DeleteProductModalData,
+} from "@/app/teams/[teamId]/products/page";
 
 interface ProductCardProps {
   product: ProductWithCreator;
   onEdit: (product: ProductWithCreator) => void;
-  onDelete: (productId: string) => void;
-  onActivate: (productId: string) => void;
+  onDelete: (data: DeleteProductModalData) => void;
+  onActivateModalOpen: (data: ActivateProductModalData) => void;
   currentUserId?: string;
 }
 
@@ -20,7 +24,7 @@ export function ProductCard({
   product,
   onEdit,
   onDelete,
-  onActivate,
+  onActivateModalOpen,
   currentUserId,
 }: ProductCardProps) {
   const isOwner = currentUserId === product.created_by;
@@ -127,7 +131,7 @@ export function ProductCard({
               <Button
                 size="sm"
                 variant="default"
-                onClick={() => onActivate(product.id)}>
+                onClick={() => onActivateModalOpen({ open: true, product })}>
                 <CheckCircle className="w-4 h-4 mr-1" />
                 Activate
               </Button>
@@ -136,7 +140,7 @@ export function ProductCard({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onDelete(product.id)}
+                onClick={() => onDelete({ open: true, product })}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50">
                 <Trash2 className="w-4 h-4 mr-1" />
                 Delete

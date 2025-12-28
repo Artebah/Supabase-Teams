@@ -16,16 +16,13 @@ export function useProducts(teamId?: string) {
     pagination,
     filters,
     isLoading,
-    error,
     setProducts,
     setLoading,
-    setError,
     setFilters,
   } = useProductsStore();
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
-    setError(null);
 
     const searchParams = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
@@ -45,7 +42,7 @@ export function useProducts(teamId?: string) {
     }
 
     setProducts(data);
-  }, [setError, setLoading, setProducts, supabase, filters]);
+  }, [setLoading, setProducts, supabase, filters]);
 
   const createProduct = async (dto: CreateProductDto) => {
     const { error } = await supabase.functions.invoke(`products`, {
@@ -62,31 +59,35 @@ export function useProducts(teamId?: string) {
   };
 
   const updateProduct = async (productId: string, dto: UpdateProductDto) => {
-    const { error } = await supabase.functions.invoke(`products/${productId}`, {
+    const response = await supabase.functions.invoke(`products/${productId}`, {
       method: "PATCH",
 
       body: JSON.stringify(dto),
     });
 
-    if (error) {
-      toastSupabaseError(error);
+    if (response.error) {
+      toastSupabaseError(response.error);
     }
 
     toast.success("Product updated successfully");
     await fetchProducts();
+
+    return response;
   };
 
   const deleteProduct = async (productId: string) => {
-    const { error } = await supabase.functions.invoke(`products/${productId}`, {
+    const response = await supabase.functions.invoke(`products/${productId}`, {
       method: "DELETE",
     });
 
-    if (error) {
-      toastSupabaseError(error);
+    if (response.error) {
+      toastSupabaseError(response.error);
     }
 
     toast.success("Product deleted successfully");
     await fetchProducts();
+
+    return response;
   };
 
   //! Move to backend
@@ -141,7 +142,6 @@ export function useProducts(teamId?: string) {
     pagination,
     filters,
     isLoading,
-    error,
     fetchProducts,
     createProduct,
     updateProduct,
