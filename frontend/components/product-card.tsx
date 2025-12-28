@@ -112,13 +112,18 @@ export function ProductCard({
               )}
             </Avatar>
             <span>{product.creator_name}</span>
-            <span>•</span>
-            <span>
+            <span className="max-sm:hidden">•</span>
+            <span className="max-sm:hidden">
               {formatDistanceToNow(new Date(product.created_at), {
                 addSuffix: true,
               })}
             </span>
           </div>
+          <span className="sm:hidden block mb-4 text-sm text-gray-500">
+            {formatDistanceToNow(new Date(product.created_at), {
+              addSuffix: true,
+            })}
+          </span>
 
           {/* Actions */}
           <div className="flex gap-2 flex-wrap">

@@ -59,7 +59,7 @@ function CreateTeamForm() {
   };
 
   return (
-    <Card className="min-w-[400px] px-4 pb-10">
+    <Card className="w-full max-sm:text-center max-w-[400px] px-4 pb-10">
       <CardHeader>
         <CardTitle className="text-center text-2xl">Create a Team</CardTitle>
         <CardDescription className="text-center">
