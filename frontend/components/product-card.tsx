@@ -11,6 +11,7 @@ import {
   ActivateProductModalData,
   DeleteProductModalData,
 } from "@/app/teams/[teamId]/products/page";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: ProductWithCreator;
@@ -47,9 +48,13 @@ export function ProductCard({
 
   return (
     <Card className="p-4 hover:shadow-lg transition-shadow">
-      <div className="flex gap-4">
+      <div className="flex gap-4 max-sm:flex-col">
         {/* Image */}
-        <div className="w-24 h-24 shrink-0 rounded-md overflow-hidden bg-gray-100 relative">
+        <div
+          className={cn(
+            "w-full h-60 sm:size-24 shrink-0 rounded-md overflow-hidden bg-gray-100 relative",
+            { "max-sm:hidden": !product.image }
+          )}>
           {product.image ? (
             <Image
               src={product.image}
@@ -116,7 +121,7 @@ export function ProductCard({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {canEdit && (
               <Button
                 size="sm"

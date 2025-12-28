@@ -81,7 +81,7 @@ export function ProductFilters({
 
       {showFilters && (
         <div className="p-4 border rounded-lg bg-gray-50 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-[0.5fr_0.5fr_1fr] xl:grid-cols-3 gap-4">
             {/* Status Filter */}
             <div>
               <label className="block text-sm font-medium mb-2">Status</label>
