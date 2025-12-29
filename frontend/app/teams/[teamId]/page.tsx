@@ -9,6 +9,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTeam } from "@/hooks/useTeam";
 import { useParams } from "next/navigation";
 import useProfileStore from "@/zustand/useProfileStore";
+import { usePresenceStore } from "@/zustand/usePresenceStore";
 
 function TeamPage() {
   const params = useParams();
@@ -17,6 +18,7 @@ function TeamPage() {
   const { team, isLoading: isLoadingTeam } = useTeam(teamId);
   const { teamMembers, isLoading: isLoadingTeamMembers } = useTeamMembers();
   const { profile } = useProfileStore();
+  const { onlineUserIds } = usePresenceStore();
 
   if (isLoadingTeam || isLoadingTeamMembers) {
     return <TeamPageSkeleton />;
@@ -106,19 +108,27 @@ function TeamPage() {
               <div
                 key={"team-member-" + teamMember.id}
                 className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage
-                    src={teamMember.avatar_url}
-                    alt={teamMember.name}
-                  />
-                  <AvatarFallback>
-                    {teamMember?.name
-                      ?.split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage
+                      src={teamMember.avatar_url}
+                      alt={teamMember.name}
+                    />
+                    <AvatarFallback>
+                      {teamMember?.name
+                        ?.split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  {onlineUserIds.includes(teamMember.id) ? (
+                    <div className="size-3 rounded-full bg-green-400 border-2 border-white absolute bottom-0 right-0" />
+                  ) : (
+                    <div className="size-3 rounded-full bg-gray-400 border-2 border-white absolute bottom-0 right-0" />
+                  )}
+                </div>
                 <div className="flex-1">
                   <p className="font-medium">{teamMember.name}</p>
                   {profile && teamMember.id === profile.id && (

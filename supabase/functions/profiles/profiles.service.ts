@@ -16,7 +16,6 @@ export class ProfilesService {
       .single();
 
     if (error) {
-      console.log(error);
       throw error;
     }
     return data;

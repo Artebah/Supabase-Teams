@@ -28,8 +28,6 @@ Deno.serve(async (req) => {
     // Delete old products
     const deletedCount = await productsService.hardDeleteOldProducts();
 
-    console.log(`Deleted ${deletedCount} old products`);
-
     return new Response(
       JSON.stringify({
         success: true,

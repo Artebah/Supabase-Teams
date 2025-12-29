@@ -4,7 +4,7 @@ import useProfileStore from "@/zustand/useProfileStore";
 import React, { useEffect, useCallback } from "react";
 
 export function useProfile() {
-  const { setProfile, setIsLoading, isLoading } = useProfileStore();
+  const { setProfile, setIsLoading, isLoading, profile } = useProfileStore();
   const [errorStatus, setErrorStatus] = React.useState<number | null>(null);
 
   const fetchUser = useCallback(async () => {
@@ -51,5 +51,12 @@ export function useProfile() {
   const isAuthError = errorStatus === 401 || errorStatus === 403;
   const isError = errorStatus !== null;
 
-  return { isLoading, isError, isAuthError, errorStatus, refetch: fetchUser };
+  return {
+    isLoading,
+    isError,
+    isAuthError,
+    errorStatus,
+    refetch: fetchUser,
+    profile,
+  };
 }
